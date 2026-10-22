@@ -39,4 +39,16 @@ public class MemberService {
         }
         return MemberServiceResult.from(member);
     }
+
+    @Transactional(readOnly=true)
+    public MemberResponse getPrivateInfo(Long myId) {
+        return MemberResponse.fromPrivate(memberRepository.findById(myId)
+                .orElseThrow(()-> new CustomException(USER_NOT_FOUND)));
+    }
+
+    @Transactional(readOnly=true)
+    public MemberResponse getPublicInfo(Long id) {
+        return MemberResponse.fromPublic(memberRepository.findById(id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FOUND)));
+    }
 }

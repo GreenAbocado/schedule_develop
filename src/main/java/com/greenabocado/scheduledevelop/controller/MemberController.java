@@ -37,6 +37,17 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<MemberResponse> getMyInfo(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId) { // 타입 컨버터를 통해 Object->Long
+        return ResponseEntity.ok().body(memberService.getPrivateInfo(myId));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MemberResponse> getOtherInfo(@PathVariable Long id) {
+        return ResponseEntity.ok().body(memberService.getPublicInfo(id));
+    }
+
     private void expireSessionAndCookie(HttpSession session, HttpServletResponse response) {
         session.invalidate();   // 세션 저장소에서 엔트리 삭제
         Cookie cookie = new Cookie(SessionConst.JSESSIONID_KEY, null);
