@@ -31,6 +31,8 @@ logging:
     root: info
     com.greenabocado.scheduledevelop: debug
     org.hibernate.SQL: debug
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%X{uuid}] %-5level %logger{20} - %msg%n"
 
 ---
 운영 환경 프로필 (datasource 및 ddl-auto, 로깅 레벨 등 재설정)
