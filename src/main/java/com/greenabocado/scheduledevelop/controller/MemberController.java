@@ -4,11 +4,9 @@ import com.greenabocado.scheduledevelop.common.SessionConst;
 import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Role;
 import com.greenabocado.scheduledevelop.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +29,20 @@ public class MemberController {
         MemberServiceResult result = memberService.login(requestDto);
         initSession(request, result.getId(), result.getRole());
         return ResponseEntity.ok().body(result.getMemberResponse());
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpSession session, HttpServletResponse response) {
+        expireSessionAndCookie(session, response);
+        return ResponseEntity.ok().build();
+    }
+
+    private void expireSessionAndCookie(HttpSession session, HttpServletResponse response) {
+        session.invalidate();   // 세션 저장소에서 엔트리 삭제
+        Cookie cookie = new Cookie(SessionConst.JSESSIONID_KEY, null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie); // 안 해도 문제는 없지만 클라이언트측 쿠키 삭제를 위함
     }
 
     private void initSession(HttpServletRequest request, Long id, Role role) {

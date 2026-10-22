@@ -5,5 +5,7 @@ public class SessionConst {
     public static final String MEMBER_ID = "memberId";
     public static final String MEMBER_ROLE = "memberRole";
 
+    public static final String JSESSIONID_KEY = "JSESSIONID";
+
     private SessionConst() {}
 }
