@@ -1,6 +1,7 @@
 package com.greenabocado.scheduledevelop.dto.member;
 
 import com.greenabocado.scheduledevelop.entity.member.Member;
+import com.greenabocado.scheduledevelop.entity.member.Role;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,9 +11,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class MemberServiceResult {
     private final Long id;
+    private final Role role;
     private final MemberResponse memberResponse;
 
     public static MemberServiceResult from(Member member) {
-        return new MemberServiceResult(member.getId(), MemberResponse.from(member));
+        return new MemberServiceResult(member.getId(), member.getRole(), MemberResponse.from(member));
     }
 }
