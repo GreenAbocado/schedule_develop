@@ -1,3 +1,36 @@
 spring:
   application:
     name: scheduledevelop
+  profiles:
+    active: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+# datasource 설정
+# 기본 구현체 HikariCP로 설정
+# 설정 기반으로 JDBC 드라이버 찾은 후 DB 세션별 커넥션 받아 관리
+# 이후 getConnection()을 통해 상위 기술 (JPA 등)에서 사용
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/schedule_develop
+    username: root
+    password: ${DB_PASSWORD}
+
+  jpa:
+    properties:
+      hibeernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: create
+
+logging:
+  level:
+    root: info
+    com.greenabocado.scheduledevelop: debug
+    org.hibernate.SQL: debug
+
+---
+운영 환경 프로필 (datasource 및 ddl-auto, 로깅 레벨 등 재설정)
