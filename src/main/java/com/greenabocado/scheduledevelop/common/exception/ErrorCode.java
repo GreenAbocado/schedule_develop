@@ -7,11 +7,12 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     /* 공통 */
-    REQUEST_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "G401", "요청 형식이 잘못되었습니다."),
-    REQUEST_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "G402", "입력값 검증에 실패하였습니다."),
-    REQUEST_URL_INVALID(HttpStatus.NOT_FOUND, "G403", "URL 경로가 잘못되었습니다"),
-    REQUEST_METHOD_INVALID(HttpStatus.METHOD_NOT_ALLOWED, "G404", "HTTP 메서드가 잘못되었습니다."),
-    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "G405", "인증에 실패하였습니다."),
+    REQUEST_FORMAT_INVALID(HttpStatus.BAD_REQUEST, "G001", "요청 형식이 잘못되었습니다."),
+    REQUEST_VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "G002", "입력값 검증에 실패하였습니다."),
+    REQUEST_URL_INVALID(HttpStatus.NOT_FOUND, "G003", "URL 경로가 잘못되었습니다"),
+    REQUEST_METHOD_INVALID(HttpStatus.METHOD_NOT_ALLOWED, "G004", "HTTP 메서드가 잘못되었습니다."),
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, "G005", "인증에 실패하였습니다."),
+    AUTHENTICATION_ALREADY(HttpStatus.FORBIDDEN, "G006", "이미 로그인된 사용자입니다."),
 
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "G500", "서버 내부 오류입니다."),
 
