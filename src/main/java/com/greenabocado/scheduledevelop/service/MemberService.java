@@ -26,7 +26,7 @@ public class MemberService {
                 .name(request.name())
                 .email(request.email())
                 .password(request.password()).build());
-        log.info("[회원 생성 id : {}]", member.getId());
+        log.info("회원 생성 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
 
@@ -39,7 +39,7 @@ public class MemberService {
         if (!member.getPassword().equals(request.password())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
-        log.info("[로그인 성공 id : {}]", member.getId());
+        log.info("로그인 성공 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
 
@@ -70,7 +70,7 @@ public class MemberService {
 
     @Transactional
     public void deleteMyAccount(Long id) {
-        log.info("[회원 탈퇴 id : {}]", id);
+        log.info("회원 탈퇴 memberId={}", id);
         memberRepository.deleteById(id);
     }
 }
