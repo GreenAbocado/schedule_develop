@@ -1,6 +1,6 @@
 package com.greenabocado.scheduledevelop.config;
 
-import com.greenabocado.scheduledevelop.common.interceptor.AlreadyAuthenticationInterceptor;
+import com.greenabocado.scheduledevelop.common.interceptor.GuestOnlyInterceptor;
 import com.greenabocado.scheduledevelop.common.interceptor.AuthenticationInterceptor;
 import com.greenabocado.scheduledevelop.common.interceptor.LogInterceptor;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/members", "/members/login", "/members/{id:\\d+}")
                 .order(2);
         /* 인증 세션 미존재 확인 (비로그인 사용자만 허용) */
-        registry.addInterceptor(new AlreadyAuthenticationInterceptor())
+        registry.addInterceptor(new GuestOnlyInterceptor())
                 .addPathPatterns("/members", "/members/login")
                 .order(3);
     }

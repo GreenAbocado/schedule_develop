@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /* 로그인한 사용자가 로그인, 회원가입 못하도록 필터링 */
-public class AlreadyAuthenticationInterceptor implements HandlerInterceptor {
+public class GuestOnlyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
