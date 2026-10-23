@@ -27,12 +27,22 @@ public class Member extends BaseEntity {
     @Column(nullable=false)
     private String password;
 
-    // String 3개라 빌더 사용
+    // String 3개라 빌더 사용 (누락될 수 있음)
     @Builder
     private Member(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.role = Role.USER;
+    }
+
+    /* 변경 매개변수가 3개라 실수 방지 및 가독성을 위해 메서드 분리 */
+    public void changeInfo(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }

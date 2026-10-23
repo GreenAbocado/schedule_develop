@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import static com.greenabocado.scheduledevelop.dto.DtoValidationMessage.*;
 
-public record MemberCreateRequest(
+/* 생성과 수정이 완전히 같아 우선 공용으로 사용, 다른 부분이 생길 경우 분리 */
+public record MemberRequest(
         @NotBlank(message="이름은 필수 입력 항목입니다.")
         @Pattern(
                 regexp="^[가-힣a-zA-Z]{1,20}$",
@@ -27,7 +28,7 @@ public record MemberCreateRequest(
         String password) {
 
     /* 이름, 이메일 앞 뒤 공백 제거 */
-    public MemberCreateRequest {
+    public MemberRequest {
         name = (name == null) ? null : name.trim();
         email = (email == null) ? null : email.trim();
         /* 비밀번호 trim()은 공백으로 인해 사용자를 혼란시킬 수 있으므로 불가 */

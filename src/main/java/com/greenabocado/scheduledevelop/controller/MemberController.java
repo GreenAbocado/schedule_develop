@@ -17,7 +17,7 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity<MemberResponse> register(
-            @RequestBody MemberCreateRequest requestDto, HttpServletRequest request) {
+            @RequestBody MemberRequest requestDto, HttpServletRequest request) {
         MemberServiceResult result = memberService.register(requestDto);
         initSession(request, result.getId(), result.getRole());
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getMemberResponse());
@@ -34,7 +34,7 @@ public class MemberController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpSession session, HttpServletResponse response) {
         expireSessionAndCookie(session, response);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/me")
@@ -46,6 +46,12 @@ public class MemberController {
     @GetMapping("/{id}")
     public ResponseEntity<MemberResponse> getOtherInfo(@PathVariable Long id) {
         return ResponseEntity.ok().body(memberService.getPublicInfo(id));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<MemberResponse> updateMyInfo(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody MemberRequest requestDto) {
+        return ResponseEntity.ok().body(memberService.updateMyInfo(myId, requestDto));
     }
 
     private void expireSessionAndCookie(HttpSession session, HttpServletResponse response) {
