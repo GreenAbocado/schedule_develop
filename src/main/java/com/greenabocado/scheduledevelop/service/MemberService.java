@@ -65,5 +65,8 @@ public class MemberService {
         return MemberResponse.fromPrivate(member);
     }
 
-
+    @Transactional
+    public void deleteMyAccount(Long id) {
+        memberRepository.deleteById(id);
+    }
 }

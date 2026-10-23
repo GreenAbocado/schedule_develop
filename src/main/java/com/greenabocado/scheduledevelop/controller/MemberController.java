@@ -54,6 +54,13 @@ public class MemberController {
         return ResponseEntity.ok().body(memberService.updateMyInfo(myId, requestDto));
     }
 
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMyAccount(HttpSession session, HttpServletResponse response) {
+        memberService.deleteMyAccount((Long)session.getAttribute(SessionConst.MEMBER_ID));
+        expireSessionAndCookie(session, response);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     private void expireSessionAndCookie(HttpSession session, HttpServletResponse response) {
         session.invalidate();   // 세션 저장소에서 엔트리 삭제
         Cookie cookie = new Cookie(SessionConst.JSESSIONID_KEY, null);
