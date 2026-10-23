@@ -5,12 +5,14 @@ import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Member;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
 
@@ -24,7 +26,7 @@ public class MemberService {
                 .name(request.name())
                 .email(request.email())
                 .password(request.password()).build());
-
+        log.info("[회원 생성 id : {}]", member.getId());
         return MemberServiceResult.from(member);
     }
 
@@ -37,6 +39,7 @@ public class MemberService {
         if (!member.getPassword().equals(request.password())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
+        log.info("[로그인 성공 id : {}]", member.getId());
         return MemberServiceResult.from(member);
     }
 
@@ -67,6 +70,7 @@ public class MemberService {
 
     @Transactional
     public void deleteMyAccount(Long id) {
+        log.info("[회원 탈퇴 id : {}]", id);
         memberRepository.deleteById(id);
     }
 }
