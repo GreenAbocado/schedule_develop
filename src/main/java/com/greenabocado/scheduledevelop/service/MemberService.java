@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 
 @Service
@@ -39,7 +40,6 @@ public class MemberService {
         if (!member.getPassword().equals(request.password())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
-        log.info("로그인 성공 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
 
@@ -54,6 +54,12 @@ public class MemberService {
     public MemberResponse getPublicInfo(Long id) {
         return MemberResponse.fromPublic(memberRepository.findById(id)
                 .orElseThrow(()-> new CustomException(USER_NOT_FOUND)));
+    }
+
+    @Transactional(readOnly=true)
+    public List<MemberResponse> getAllMembersByAdmin() {
+        return memberRepository.findAll().stream()
+                .map(MemberResponse::fromPrivate).toList();
     }
 
     @Transactional
