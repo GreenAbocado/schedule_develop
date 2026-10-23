@@ -21,7 +21,8 @@ public class WebConfig implements WebMvcConfigurer {
         /* 인증 세션 존재 확인 (로그인한 사용자만 허용) */
         registry.addInterceptor(new AuthenticationInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/members", "/members/login")
+                /* members/{id}(단건 조회)는 공개 */
+                .excludePathPatterns("/members", "/members/login", "/members/{id:\\d+}")
                 .order(2);
         /* 인증 세션 미존재 확인 (비로그인 사용자만 허용) */
         registry.addInterceptor(new AlreadyAuthenticationInterceptor())
