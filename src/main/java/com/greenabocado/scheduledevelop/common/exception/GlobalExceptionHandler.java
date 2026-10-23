@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException.class,  // 쿼리, 경로변수 타입 변환 실패
             MissingServletRequestParameterException.class}) // 필수 쿼리 누락 (현재는 필요X)
     public ResponseEntity<ErrorResponse> handleHttpFormatException(Exception e) {
-        log.warn("[{}] by: {}", REQUEST_FORMAT_INVALID.getCode(), e.getClass().getSimpleName());
+        log.warn("[{}] {}", REQUEST_FORMAT_INVALID.getCode(), e.getClass().getSimpleName());
         return buildResponseEntity(REQUEST_FORMAT_INVALID);
     }
 
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
                 .toList();
 
         ErrorCode code = REQUEST_VALIDATION_FAILED;
-        log.warn("[{}] count: {}", code.getCode(), fieldErrors.size());
+        log.warn("[{}] {}건의 검증 실패", code.getCode(), fieldErrors.size());
         return ResponseEntity.status(code.getStatus())
                 .body(ErrorResponse.of(code, fieldErrors));
     }
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
         ErrorCode code = e.getErrorCode();
-        log.warn("[{}] message: {}", code.getCode(), code.getMessage());
+        log.warn("[{}] {}", code.getCode(), code.getMessage());
         return buildResponseEntity(code);
     }
 

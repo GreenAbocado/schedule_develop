@@ -3,7 +3,22 @@ spring:
     name: scheduledevelop
   profiles:
     active: dev
+server:
+  servlet:
+    session:
+      timeout: 30m  # 기본 30m이지만 명시를 위해 설정
+      cookie: # 쿠키 보안 설정
+        http-only: true # JS의 쿠키 접근 차단 (오로지 브라우저가 각 도메인에 맞게 자동으로 쿠키 전송)
+        secure: true  # HTTPS만 허용, Local에선 변경
+        same-site: lax  # 쿠키 단계에서 CSRF 방지 (쿠키의 도메인과 현재 위치하고 있는 도메인이 일치하는지 비교)
+        # lax: 다른 사이트에서의 get 요청에는 쿠키를 실어 보냄. (일반적인 웹 서비스 표준) (?)
 ---
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+
 spring:
   config:
     activate:
@@ -21,7 +36,7 @@ spring:
 
   jpa:
     properties:
-      hibeernate:
+      hibernate:
         format_sql: true
     hibernate:
       ddl-auto: create
@@ -32,7 +47,7 @@ logging:
     com.greenabocado.scheduledevelop: debug
     org.hibernate.SQL: debug
   pattern:
-    console: "%d{HH:mm:ss.SSS} [%X{uuid}] %-5level %logger{20} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%X{uuid}] %-5level %logger{0} | %msg%n"
 
 ---
 운영 환경 프로필 (datasource 및 ddl-auto, 로깅 레벨 등 재설정)
