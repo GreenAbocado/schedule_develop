@@ -1,5 +1,6 @@
 package com.greenabocado.scheduledevelop.config;
 
+import com.greenabocado.scheduledevelop.common.interceptor.AdminInterceptor;
 import com.greenabocado.scheduledevelop.common.interceptor.GuestOnlyInterceptor;
 import com.greenabocado.scheduledevelop.common.interceptor.AuthenticationInterceptor;
 import com.greenabocado.scheduledevelop.common.interceptor.LogInterceptor;
@@ -28,5 +29,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(new GuestOnlyInterceptor())
                 .addPathPatterns("/members", "/members/login")
                 .order(3);
+
+        /* 관리자 권한 확인 */
+        registry.addInterceptor(new AdminInterceptor())
+                .addPathPatterns("/admin/**")
+                .order(4);
     }
 }
