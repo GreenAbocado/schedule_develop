@@ -5,6 +5,7 @@ import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Role;
 import com.greenabocado.scheduledevelop.service.MemberService;
 import jakarta.servlet.http.*;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity<MemberResponse> register(
-            @RequestBody MemberRequest requestDto, HttpServletRequest request) {
+            @RequestBody @Valid MemberRequest requestDto, HttpServletRequest request) {
         MemberServiceResult result = memberService.register(requestDto);
         initSession(request, result.getId(), result.getRole());
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getMemberResponse());
@@ -25,7 +26,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<MemberResponse> login(
-            @RequestBody LoginRequest requestDto, HttpServletRequest request) {
+            @RequestBody @Valid LoginRequest requestDto, HttpServletRequest request) {
         MemberServiceResult result = memberService.login(requestDto);
         initSession(request, result.getId(), result.getRole());
         return ResponseEntity.ok().body(result.getMemberResponse());
@@ -50,7 +51,7 @@ public class MemberController {
 
     @PutMapping("/me")
     public ResponseEntity<MemberResponse> updateMyInfo(
-            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody MemberRequest requestDto) {
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody @Valid MemberRequest requestDto) {
         return ResponseEntity.ok().body(memberService.updateMyInfo(myId, requestDto));
     }
 
