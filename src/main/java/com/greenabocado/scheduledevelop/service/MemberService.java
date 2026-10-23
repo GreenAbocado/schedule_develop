@@ -40,7 +40,6 @@ public class MemberService {
         if (!member.getPassword().equals(request.password())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
-        log.info("로그인 성공 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
 
