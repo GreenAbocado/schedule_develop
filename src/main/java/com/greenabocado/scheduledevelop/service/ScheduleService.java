@@ -10,12 +10,14 @@ import com.greenabocado.scheduledevelop.entity.member.Member;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
@@ -27,6 +29,7 @@ public class ScheduleService {
 
         Schedule schedule = Schedule.of(request.title(), request.content(), member);
         scheduleRepository.save(schedule);
+        log.info("일정 생성 scheduleId={}", schedule.getId());
         return ScheduleDetailResponse.of(schedule, true);
     }
 
@@ -63,6 +66,7 @@ public class ScheduleService {
     public void deleteMySchedule(Long memberId, Long scheduleId) {
         Schedule schedule = getMyScheduleOrThrow(memberId, scheduleId);
         scheduleRepository.delete(schedule);
+        log.info("일정 삭제 scheduleId={}", schedule.getId());
     }
 
     /* 수정/삭제 시 스케줄 작성자와 세션 회원 정보 일치 여부 확인 */

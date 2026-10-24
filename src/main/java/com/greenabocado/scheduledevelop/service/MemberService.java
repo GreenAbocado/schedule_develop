@@ -81,6 +81,7 @@ public class MemberService {
         /* 삭제 파생메서드일 경우, 조회 후 삭제 상태로 변경하여 N건의 쿼리
         *  벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄 삭제 */
         scheduleRepository.deleteAllByMemberIdInBulk(id);
+        log.info("특정 회원 일정 삭제 memberId={}", id);
         memberRepository.deleteById(id);
         log.info("회원 탈퇴 memberId={}", id);
     }
