@@ -7,8 +7,12 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    @Query("SELECT new com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse" +
-            "(s.id, s.title, s.updatedAt, m.name) " +
-            "FROM Schedule s JOIN s.member m")
+    @Query("""
+            SELECT new com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse
+            (s.id, s.title, s.updatedAt, m.name)
+            FROM Schedule s JOIN s.member m
+            """)
     List<ScheduleSummaryResponse> findAllWithMember();
+
+    List<Schedule> findByMemberId(Long memberId);
 }

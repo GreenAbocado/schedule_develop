@@ -37,5 +37,9 @@ public class ScheduleController {
         return ResponseEntity.ok().body(scheduleService.getSchedule(memberId, scheduleId));
     }
 
-
+    @GetMapping("/me")
+    public ResponseEntity<List<ScheduleSummaryResponse>> getMySchedules(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId) {
+        return ResponseEntity.ok().body(scheduleService.getMyAllSchedules(memberId));
+    }
 }

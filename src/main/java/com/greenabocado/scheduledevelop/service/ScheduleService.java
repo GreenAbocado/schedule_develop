@@ -41,10 +41,15 @@ public class ScheduleService {
         Schedule schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(()-> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
 
-        // 단순 수정/삭제 버튼 화면 표시 여부 결정, 지연로딩으로 getId() 시점에 쿼리 한 번 더 나감, memberId 널 가능(비로그인 사용자)
+        // 단순 수정/삭제 버튼 화면 표시 여부 결정, memberId 널 가능(비로그인 사용자)
         boolean editable = schedule.getMember().getId().equals(memberId);
         return ScheduleDetailResponse.of(schedule, editable);
     }
 
-
+    @Transactional(readOnly=true)
+    public List<ScheduleSummaryResponse> getMyAllSchedules(Long memberId) {
+        /* findByMemberId() 후 DTO에서 작성자 이름 조회할 때 처음에만 쿼리를 날려 member 가져옴 (스케줄간 동일한 멤버 프록시 객체) */
+        return scheduleRepository.findByMemberId(memberId).stream()
+                .map(ScheduleSummaryResponse::from).toList();
+    }
 }
