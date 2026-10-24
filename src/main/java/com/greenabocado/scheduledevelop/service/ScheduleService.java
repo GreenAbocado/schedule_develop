@@ -32,7 +32,7 @@ public class ScheduleService {
 
     @Transactional(readOnly=true)
     public List<ScheduleSummaryResponse> getAllSchedules() {
-        return scheduleRepository.findAllWithMember();
+        return scheduleRepository.findAllWithMemberName();
         /* findAll() 후에 각 member 접근 시 N+1, JPQL로 조인 후 1번의 조회로 DTO 프로젝션 */
     }
 
@@ -48,7 +48,7 @@ public class ScheduleService {
     @Transactional(readOnly=true)
     public List<ScheduleSummaryResponse> getMyAllSchedules(Long memberId) {
         /* findByMemberId() 후 DTO에서 작성자 이름 조회할 때 처음에만 쿼리를 날려 member 가져옴 (스케줄간 동일한 멤버 프록시 객체) */
-        return scheduleRepository.findByMemberId(memberId).stream()
+        return scheduleRepository.findAllByMemberId(memberId).stream()
                 .map(ScheduleSummaryResponse::from).toList();
     }
 

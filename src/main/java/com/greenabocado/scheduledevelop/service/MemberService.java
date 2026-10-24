@@ -4,6 +4,7 @@ import com.greenabocado.scheduledevelop.common.exception.CustomException;
 import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Member;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
+import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 @Slf4j
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final ScheduleRepository scheduleRepository;
 
     @Transactional
     public MemberServiceResult register(MemberRequest request) {
@@ -76,7 +78,10 @@ public class MemberService {
 
     @Transactional
     public void deleteMyAccount(Long id) {
-        log.info("회원 탈퇴 memberId={}", id);
+        /* 삭제 파생메서드일 경우, 조회 후 삭제 상태로 변경하여 N건의 쿼리
+        *  벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄 삭제 */
+        scheduleRepository.deleteAllByMemberIdInBulk(id);
         memberRepository.deleteById(id);
+        log.info("회원 탈퇴 memberId={}", id);
     }
 }
