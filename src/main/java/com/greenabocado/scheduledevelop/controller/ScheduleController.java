@@ -31,4 +31,11 @@ public class ScheduleController {
         return ResponseEntity.ok().body(scheduleService.getAllSchedules());
     }
 
+    @GetMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleDetailResponse> getSchedule(
+            @SessionAttribute(required=false, name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long scheduleId) {
+        return ResponseEntity.ok().body(scheduleService.getSchedule(memberId, scheduleId));
+    }
+
+
 }

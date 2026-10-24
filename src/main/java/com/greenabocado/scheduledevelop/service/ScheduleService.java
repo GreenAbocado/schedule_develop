@@ -35,4 +35,16 @@ public class ScheduleService {
         return scheduleRepository.findAllWithMember();
         /* findAll() 후에 각 member 접근 시 N+1, JPQL로 조인 후 1번의 조회로 DTO 프로젝션 */
     }
+
+    @Transactional(readOnly=true)
+    public ScheduleDetailResponse getSchedule(Long memberId, Long scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId)
+                .orElseThrow(()-> new CustomException(ErrorCode.SCHEDULE_NOT_FOUND));
+
+        // 단순 수정/삭제 버튼 화면 표시 여부 결정, 지연로딩으로 getId() 시점에 쿼리 한 번 더 나감, memberId 널 가능(비로그인 사용자)
+        boolean editable = schedule.getMember().getId().equals(memberId);
+        return ScheduleDetailResponse.of(schedule, editable);
+    }
+
+
 }
