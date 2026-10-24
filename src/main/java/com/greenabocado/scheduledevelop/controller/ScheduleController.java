@@ -1,7 +1,7 @@
 package com.greenabocado.scheduledevelop.controller;
 
 import com.greenabocado.scheduledevelop.common.SessionConst;
-import com.greenabocado.scheduledevelop.dto.schedule.ScheduleCreateRequest;
+import com.greenabocado.scheduledevelop.dto.schedule.ScheduleRequest;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleDetailResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse;
 import com.greenabocado.scheduledevelop.service.ScheduleService;
@@ -21,7 +21,7 @@ public class ScheduleController {
 
     @PostMapping
     public ResponseEntity<ScheduleDetailResponse> createSchedule(
-            @SessionAttribute(name= SessionConst.MEMBER_ID) Long memberId, @RequestBody @Valid ScheduleCreateRequest request) {
+            @SessionAttribute(name= SessionConst.MEMBER_ID) Long memberId, @RequestBody @Valid ScheduleRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(scheduleService.createSchedule(memberId, request));
     }
@@ -41,5 +41,19 @@ public class ScheduleController {
     public ResponseEntity<List<ScheduleSummaryResponse>> getMySchedules(
             @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId) {
         return ResponseEntity.ok().body(scheduleService.getMyAllSchedules(memberId));
+    }
+
+    @PutMapping("/{scheduleId}")
+    public ResponseEntity<ScheduleDetailResponse> updateMySchedule(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId,
+            @PathVariable Long scheduleId, @RequestBody @Valid ScheduleRequest request) {
+        return ResponseEntity.ok().body(scheduleService.updateMySchedule(memberId, scheduleId, request));
+    }
+
+    @DeleteMapping("/{scheduleId}")
+    public ResponseEntity<Void> deleteMySchedule(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long scheduleId) {
+        scheduleService.deleteMySchedule(memberId, scheduleId);
+        return ResponseEntity.noContent().build();
     }
 }
