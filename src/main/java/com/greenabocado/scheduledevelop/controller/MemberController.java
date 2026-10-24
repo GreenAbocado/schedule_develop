@@ -18,7 +18,7 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity<MemberResponse> register(
-            @RequestBody @Valid MemberRequest requestDto, HttpServletRequest request) {
+            @RequestBody @Valid MemberCreateRequest requestDto, HttpServletRequest request) {
         MemberServiceResult result = memberService.register(requestDto);
         initSession(request, result.getId(), result.getRole());
         return ResponseEntity.status(HttpStatus.CREATED).body(result.getMemberResponse());
@@ -51,8 +51,16 @@ public class MemberController {
 
     @PutMapping("/me")
     public ResponseEntity<MemberResponse> updateMyInfo(
-            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody @Valid MemberRequest requestDto) {
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody @Valid MemberUpdateRequest requestDto) {
         return ResponseEntity.ok().body(memberService.updateMyInfo(myId, requestDto));
+    }
+
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> updateMyPassword(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long myId, @RequestBody @Valid PasswordUpdateRequest requestDto
+    ) {
+        memberService.updatePassword(myId, requestDto);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/me")

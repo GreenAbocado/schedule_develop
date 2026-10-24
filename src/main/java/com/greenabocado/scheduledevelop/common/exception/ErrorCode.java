@@ -20,6 +20,7 @@ public enum ErrorCode {
     USER_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "U001", "로그인에 실패하였습니다"),
     USER_EMAIL_DUPLICATED(HttpStatus.CONFLICT, "U002", "중복된 이메일입니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "U003", "해당 사용자가 존재하지 않습니다."),
+    USER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "U004", "비밀번호를 잘못 입력하였습니다."),
 
     /* 관리자 */
     ADMIN_FORBIDDEN(HttpStatus.FORBIDDEN, "A001", "관리자 인가에 실패하였습니다"),

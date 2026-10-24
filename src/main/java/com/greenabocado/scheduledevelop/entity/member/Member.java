@@ -36,7 +36,6 @@ public class Member extends BaseEntity {
         this.role = Role.USER;
     }
 
-    /* 변경 매개변수가 3개라 실수 방지 및 가독성을 위해 메서드 분리 */
     public void changeInfo(String name, String email) {
         this.name = name;
         this.email = email;
