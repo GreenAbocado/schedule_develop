@@ -1,6 +1,7 @@
 package com.greenabocado.scheduledevelop.service;
 
 import com.greenabocado.scheduledevelop.common.exception.CustomException;
+import com.greenabocado.scheduledevelop.config.PasswordEncoder;
 import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Member;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
@@ -18,17 +19,19 @@ import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public MemberServiceResult register(MemberCreateRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new CustomException(USER_EMAIL_DUPLICATED);
         }
-        /* 이후 해시 함수 적용 */
-        Member member = memberRepository.save(Member.builder()
+        Member member = memberRepository.save(
+                Member.builder()
                 .name(request.name())
                 .email(request.email())
-                .password(request.password()).build());
+                .password(passwordEncoder.encode(request.password())).build()
+        );
         log.info("회원 생성 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
@@ -38,8 +41,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(request.email())
                 .orElseThrow(()-> new CustomException(USER_LOGIN_FAILED));
 
-        /* 암호화 적용 이후 변경 */
-        if (!member.getPassword().equals(request.password())) {
+        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
         return MemberServiceResult.from(member);
@@ -76,7 +78,7 @@ public class MemberService {
     @Transactional
     public void updatePassword(Long id, PasswordUpdateRequest request) {
         Member member = findMemberById(id);
-        if (!member.getPassword().equals(request.currentPassword())) {
+        if (!passwordEncoder.matches(request.currentPassword(), member.getPassword())) {
             throw new CustomException(USER_PASSWORD_MISMATCH);
         }
         member.changePassword(request.newPassword());
