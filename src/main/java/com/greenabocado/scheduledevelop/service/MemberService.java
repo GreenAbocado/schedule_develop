@@ -1,6 +1,7 @@
 package com.greenabocado.scheduledevelop.service;
 
 import com.greenabocado.scheduledevelop.common.exception.CustomException;
+import com.greenabocado.scheduledevelop.config.PasswordEncoder;
 import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Member;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
@@ -18,17 +19,19 @@ import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public MemberServiceResult register(MemberRequest request) {
+    public MemberServiceResult register(MemberCreateRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
             throw new CustomException(USER_EMAIL_DUPLICATED);
         }
-        /* 이후 해시 함수 적용 */
-        Member member = memberRepository.save(Member.builder()
+        Member member = memberRepository.save(
+                Member.builder()
                 .name(request.name())
                 .email(request.email())
-                .password(request.password()).build());
+                .password(passwordEncoder.encode(request.password())).build()
+        );
         log.info("회원 생성 memberId={}", member.getId());
         return MemberServiceResult.from(member);
     }
@@ -38,8 +41,7 @@ public class MemberService {
         Member member = memberRepository.findByEmail(request.email())
                 .orElseThrow(()-> new CustomException(USER_LOGIN_FAILED));
 
-        /* 암호화 적용 이후 변경 */
-        if (!member.getPassword().equals(request.password())) {
+        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
             throw new CustomException(USER_LOGIN_FAILED);
         }
         return MemberServiceResult.from(member);
@@ -47,15 +49,13 @@ public class MemberService {
 
     @Transactional(readOnly=true)
     public MemberResponse getPrivateInfo(Long myId) {
-        return MemberResponse.fromPrivate(memberRepository.findById(myId)
-                .orElseThrow(()-> new CustomException(USER_NOT_FOUND)));
+        return MemberResponse.fromPrivate(findMemberById(myId));
         /* 회원 탈퇴(DB 삭제) 이후 세션 만료 전에 해당 요청이 들어오면 예외가 발생하는 등 특정 케이스 존재 */
     }
 
     @Transactional(readOnly=true)
     public MemberResponse getPublicInfo(Long id) {
-        return MemberResponse.fromPublic(memberRepository.findById(id)
-                .orElseThrow(()-> new CustomException(USER_NOT_FOUND)));
+        return MemberResponse.fromPublic(findMemberById(id));
     }
 
     @Transactional(readOnly=true)
@@ -65,24 +65,38 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse updateMyInfo(Long id, MemberRequest request) {
-        Member member = memberRepository.findById(id).orElseThrow(()-> new CustomException(USER_NOT_FOUND));
+    public MemberResponse updateMyInfo(Long id, MemberUpdateRequest request) {
+        Member member = findMemberById(id);
         /* 다른 사용자 이메일과 중복 */
         if (!member.getEmail().equals(request.email()) && memberRepository.existsByEmail(request.email())) {
             throw new CustomException(USER_EMAIL_DUPLICATED);
         }
         member.changeInfo(request.name(), request.email());
-        member.changePassword(request.password());
         return MemberResponse.fromPrivate(member);
     }
 
     @Transactional
+    public void updatePassword(Long id, PasswordUpdateRequest request) {
+        Member member = findMemberById(id);
+        if (!passwordEncoder.matches(request.currentPassword(), member.getPassword())) {
+            throw new CustomException(USER_PASSWORD_MISMATCH);
+        }
+        member.changePassword(request.newPassword());
+    }
+
+    /* 삭제 파생메서드일 경우, 조회 후 삭제 상태로 변경하여 N건의 쿼리
+     *  벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄 삭제 */
+    @Transactional
     public void deleteMyAccount(Long id) {
-        /* 삭제 파생메서드일 경우, 조회 후 삭제 상태로 변경하여 N건의 쿼리
-        *  벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄 삭제 */
         scheduleRepository.deleteAllByMemberIdInBulk(id);
         log.info("특정 회원 일정 삭제 memberId={}", id);
+
         memberRepository.deleteById(id);
         log.info("회원 탈퇴 memberId={}", id);
+    }
+
+    private Member findMemberById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(()-> new CustomException(USER_NOT_FOUND));
     }
 }
