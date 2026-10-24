@@ -38,7 +38,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         POST_LOGIN(HttpMethod.POST, Pattern.compile("/members/login")),
         GET_ONE_MEMBER(HttpMethod.GET, Pattern.compile("/members/\\d+")),
         GET_SCHEDULES(HttpMethod.GET, Pattern.compile("/schedules")),
-        GET_ONE_SCHEDULE(HttpMethod.GET, Pattern.compile("/schedules/\\d+"));
+        GET_ONE_SCHEDULE(HttpMethod.GET, Pattern.compile("/schedules/\\d+")),
+        GET_COMMENTS_IN_SCHEDULE(HttpMethod.GET, Pattern.compile("/schedules/\\d+/comments"));
 
         private final HttpMethod method;
         private final Pattern uri;
