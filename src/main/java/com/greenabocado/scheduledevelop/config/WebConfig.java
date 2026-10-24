@@ -17,15 +17,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .order(1);
 
-
-        /* API대로 변경 필요 */
-        /* 인증 세션 존재 확인 (로그인한 사용자만 허용) */
+        /* 로그인 사용자만 허용 */
         registry.addInterceptor(new AuthenticationInterceptor())
-                .addPathPatterns("/**")
-                /* members/{id}(단건 조회)는 공개 */
-                .excludePathPatterns("/members", "/members/login", "/members/{id:\\d+}")
+                .addPathPatterns("/**") // 허용 여부 인터셉터가 결정
                 .order(2);
-        /* 인증 세션 미존재 확인 (비로그인 사용자만 허용) */
+
+        /* 비로그인 사용자만 허용 (회원가입, 로그인) */
         registry.addInterceptor(new GuestOnlyInterceptor())
                 .addPathPatterns("/members", "/members/login")
                 .order(3);
