@@ -1,21 +1,24 @@
 package com.greenabocado.scheduledevelop.controller;
 
 import com.greenabocado.scheduledevelop.common.SessionConst;
+import com.greenabocado.scheduledevelop.dto.common.PageResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleRequest;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleDetailResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse;
 import com.greenabocado.scheduledevelop.service.ScheduleService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/schedules")
+@Validated
 public class ScheduleController {
     private final ScheduleService scheduleService;
 
@@ -27,8 +30,11 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleSummaryResponse>> getAllSchedules() {
-        return ResponseEntity.ok().body(scheduleService.getAllSchedules());
+    public ResponseEntity<PageResponse<ScheduleSummaryResponse>> getAllSchedules(
+            @RequestParam(defaultValue="0") @Min(0) int page,
+            @RequestParam(defaultValue="10") @Min(1) @Max(20) int size
+    ) {
+        return ResponseEntity.ok().body(scheduleService.getAllSchedules(page, size));
     }
 
     @GetMapping("/{scheduleId}")
@@ -38,9 +44,12 @@ public class ScheduleController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<ScheduleSummaryResponse>> getMySchedules(
-            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId) {
-        return ResponseEntity.ok().body(scheduleService.getMyAllSchedules(memberId));
+    public ResponseEntity<PageResponse<ScheduleSummaryResponse>> getMySchedules(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId,
+            @RequestParam(defaultValue="0") @Min(0) int page,
+            @RequestParam(defaultValue="10") @Min(1) @Max(20) int size
+    ) {
+        return ResponseEntity.ok().body(scheduleService.getMyAllSchedules(memberId, page, size));
     }
 
     @PutMapping("/{scheduleId}")

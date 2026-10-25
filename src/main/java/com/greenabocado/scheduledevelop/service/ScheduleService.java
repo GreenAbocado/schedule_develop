@@ -2,6 +2,7 @@ package com.greenabocado.scheduledevelop.service;
 
 import com.greenabocado.scheduledevelop.common.exception.CustomException;
 import com.greenabocado.scheduledevelop.common.exception.ErrorCode;
+import com.greenabocado.scheduledevelop.dto.common.PageResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleRequest;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleDetailResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse;
@@ -12,9 +13,11 @@ import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +38,13 @@ public class ScheduleService {
         return ScheduleDetailResponse.of(schedule, true);
     }
 
+    /* findAll(pageable)을 쓰면 Page<Schedule>을 받아
+        이후 Schedule -> ScheduleSummaryResponse(DTO) 변환 시, 지연 로딩으로 N+1 문제 발생 (회원 이름 접근)
+        DTO 프로젝션으로 1번의 쿼리로 조인하여 해결 */
     @Transactional(readOnly=true)
-    public List<ScheduleSummaryResponse> getAllSchedules() {
-        return scheduleRepository.findAllWithMemberName();
-        /* findAll() 후에 각 member 접근 시 N+1, JPQL로 조인 후 1번의 조회로 DTO 프로젝션 */
+    public PageResponse<ScheduleSummaryResponse> getAllSchedules(int page, int size) {
+        Pageable pageable = getPageable(page, size);
+        return PageResponse.from(scheduleRepository.findAllWithMemberName(pageable));
     }
 
     @Transactional(readOnly=true)
@@ -49,11 +55,14 @@ public class ScheduleService {
         return ScheduleDetailResponse.of(schedule, schedule.isWrittenBy(memberId));
     }
 
+    /* 일정이 모두 같은 회원 프록시 객체를 참조하고 있으므로
+       이후 DTO 변환에서 회원에 접근할 경우 1번의 쿼리로 회원을 조회하고 그 이후는 날라가지 않음 -> 간단하게 파생 메서드 사용 */
     @Transactional(readOnly=true)
-    public List<ScheduleSummaryResponse> getMyAllSchedules(Long memberId) {
-        /* findByMemberId() 후 DTO에서 작성자 이름 조회할 때 처음에만 쿼리를 날려 member 가져옴 (스케줄간 동일한 멤버 프록시 객체) */
-        return scheduleRepository.findAllByMemberId(memberId).stream()
-                .map(ScheduleSummaryResponse::from).toList();
+    public PageResponse<ScheduleSummaryResponse> getMyAllSchedules(Long memberId, int page, int size) {
+        Pageable pageable = getPageable(page, size);
+
+        return PageResponse.from(scheduleRepository.findAllByMemberId(pageable, memberId)   // Page<Schedule>
+                .map(ScheduleSummaryResponse::from));
     }
 
     @Transactional
@@ -74,6 +83,12 @@ public class ScheduleService {
 
         scheduleRepository.delete(schedule);
         log.info("일정 삭제 scheduleId={}", schedule.getId());
+    }
+
+    private Pageable getPageable(int page, int size) {
+        return PageRequest.of(page, size, Sort.by(
+                Sort.Order.desc("updatedAt"),
+                Sort.Order.desc("id"))); /* 수정일이 같을 경우 ID로 정렬 */
     }
 
     /* 수정/삭제 시 스케줄 작성자와 세션 회원 정보 일치 여부 확인 */
