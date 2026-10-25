@@ -34,4 +34,8 @@ public class Comment extends BaseEntity{
     public static Comment of(String content, Member member, Schedule schedule) {
         return new Comment(content, member, schedule);
     }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }

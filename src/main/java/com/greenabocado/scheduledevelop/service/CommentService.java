@@ -42,4 +42,15 @@ public class CommentService {
                 .map((comment)->
                         CommentResponse.of(comment, comment.getMember().getId().equals(sessionMemberId))).toList();
     }
+
+    @Transactional
+    public CommentResponse updateContent(Long sessionMemberId, Long commentId, CommentRequest request) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND));
+        if (!comment.getMember().getId().equals(sessionMemberId)) {
+            throw new CustomException(COMMENT_WRITER_FORBIDDEN);
+        }
+        comment.updateContent(request.content());
+        return CommentResponse.of(comment, true);
+    }
 }

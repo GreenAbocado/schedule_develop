@@ -30,4 +30,11 @@ public class CommentController {
             @SessionAttribute(required=false, name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long scheduleId) {
         return ResponseEntity.ok().body(commentService.getAllCommentsInSchedule(memberId, scheduleId));
     }
+
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity<CommentResponse> updateContent(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long commentId,
+            @Valid @RequestBody CommentRequest request) {
+        return ResponseEntity.ok().body(commentService.updateContent(memberId, commentId, request));
+    }
 }
