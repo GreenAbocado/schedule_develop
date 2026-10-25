@@ -7,6 +7,7 @@ import com.greenabocado.scheduledevelop.dto.schedule.ScheduleDetailResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse;
 import com.greenabocado.scheduledevelop.entity.Schedule;
 import com.greenabocado.scheduledevelop.entity.member.Member;
+import com.greenabocado.scheduledevelop.repository.CommentRepository;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public ScheduleDetailResponse createSchedule(Long memberId, ScheduleRequest request) {
@@ -61,9 +63,15 @@ public class ScheduleService {
         return ScheduleDetailResponse.of(schedule, true);
     }
 
+    /* 파생 메서드로 댓글 목록 삭제 시 엔티티 상태 삭제로 변경 후 N번의 쿼리 추가 발생
+     *  벌크 쿼리 1번으로 해결*/
     @Transactional
     public void deleteMySchedule(Long memberId, Long scheduleId) {
         Schedule schedule = getMyScheduleOrThrow(memberId, scheduleId);
+
+        long commentDeletedCount = commentRepository.deleteAllByScheduleIdInBulk(scheduleId);
+        log.info("일정 댓글 전체 {}건 삭제 scheduleId={}", commentDeletedCount, schedule.getId());
+
         scheduleRepository.delete(schedule);
         log.info("일정 삭제 scheduleId={}", schedule.getId());
     }
