@@ -12,6 +12,7 @@ import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 
 @Service
@@ -29,5 +30,16 @@ public class CommentService {
                 .orElseThrow(()-> new CustomException(USER_NOT_FOUND));
         Comment comment = commentRepository.save(Comment.of(request.content(), member, schedule));
         return CommentResponse.of(comment, true);
+    }
+
+    @Transactional(readOnly=true)
+    public List<CommentResponse> getAllCommentsInSchedule(Long sessionMemberId, Long scheduleId) {
+        if (!scheduleRepository.existsById(scheduleId)) {
+            throw new CustomException(SCHEDULE_NOT_FOUND);
+        }
+        /* 데이터 후처리(editable 확인)가 필요해서 DTO 프로젝션이 아닌 fetch join으로 N+1 방지 */
+        return commentRepository.findAllByScheduleIdWithMember(scheduleId).stream()
+                .map((comment)->
+                        CommentResponse.of(comment, comment.getMember().getId().equals(sessionMemberId))).toList();
     }
 }
