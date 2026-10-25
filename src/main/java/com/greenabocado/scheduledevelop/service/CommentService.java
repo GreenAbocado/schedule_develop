@@ -45,12 +45,28 @@ public class CommentService {
 
     @Transactional
     public CommentResponse updateContent(Long sessionMemberId, Long commentId, CommentRequest request) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND));
+        Comment comment = getMyCommentOrThrow(sessionMemberId, commentId);
+        comment.updateContent(request.content());
+        return CommentResponse.of(comment, true);
+    }
+
+    @Transactional
+    public void deleteMyComment(Long sessionMemberId, Long commentId) {
+        Comment comment = getMyCommentOrThrow(sessionMemberId, commentId);
+        commentRepository.delete(comment);
+    }
+
+    private Comment getMyCommentOrThrow(Long sessionMemberId, Long commentId) {
+        Comment comment = findCommentById(commentId);
+
         if (!comment.isWrittenBy(sessionMemberId)) {
             throw new CustomException(COMMENT_WRITER_FORBIDDEN);
         }
-        comment.updateContent(request.content());
-        return CommentResponse.of(comment, true);
+        return comment;
+    }
+
+    private Comment findCommentById(Long commentId) {
+        return commentRepository.findById(commentId)
+                .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND));
     }
 }

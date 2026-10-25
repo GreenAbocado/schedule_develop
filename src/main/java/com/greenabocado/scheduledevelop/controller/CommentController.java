@@ -32,9 +32,16 @@ public class CommentController {
     }
 
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<CommentResponse> updateContent(
+    public ResponseEntity<CommentResponse> updateMyComment(
             @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long commentId,
             @Valid @RequestBody CommentRequest request) {
         return ResponseEntity.ok().body(commentService.updateContent(memberId, commentId, request));
+    }
+
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<Void> deleteMyComment(
+            @SessionAttribute(name=SessionConst.MEMBER_ID) Long memberId, @PathVariable Long commentId) {
+        commentService.deleteMyComment(memberId, commentId);
+        return ResponseEntity.noContent().build();
     }
 }
