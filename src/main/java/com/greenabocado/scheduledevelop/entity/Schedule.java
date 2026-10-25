@@ -38,4 +38,8 @@ public class Schedule extends BaseEntity{
         this.title = title;
         this.content = content;
     }
+
+    public boolean isWrittenBy(Long memberId) {
+        return member.getId().equals(memberId);
+    }
 }

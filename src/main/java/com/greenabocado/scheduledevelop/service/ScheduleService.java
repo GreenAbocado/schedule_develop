@@ -43,9 +43,8 @@ public class ScheduleService {
     public ScheduleDetailResponse getSchedule(Long memberId, Long scheduleId) {
         Schedule schedule = findScheduleById(scheduleId);
 
-        // 단순 수정/삭제 버튼 화면 표시 여부 결정, memberId 널 가능(비로그인 사용자)
-        boolean editable = schedule.getMember().getId().equals(memberId);
-        return ScheduleDetailResponse.of(schedule, editable);
+        // 2번째 파라미터: 작성자 여부(수정/삭제 버튼 표시 결정), memberId 널 가능(비로그인 사용자)
+        return ScheduleDetailResponse.of(schedule, schedule.isWrittenBy(memberId));
     }
 
     @Transactional(readOnly=true)
@@ -73,7 +72,7 @@ public class ScheduleService {
     private Schedule getMyScheduleOrThrow(Long memberId, Long scheduleId) {
         Schedule schedule = findScheduleById(scheduleId);
 
-        if (!schedule.getMember().getId().equals(memberId)) {
+        if (!schedule.isWrittenBy(memberId)) {
             throw new CustomException(ErrorCode.SCHEDULE_WRITER_FORBIDDEN);
         }
         return schedule;

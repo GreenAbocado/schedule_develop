@@ -37,17 +37,17 @@ public class CommentService {
         if (!scheduleRepository.existsById(scheduleId)) {
             throw new CustomException(SCHEDULE_NOT_FOUND);
         }
-        /* 데이터 후처리(editable 확인)가 필요해서 DTO 프로젝션이 아닌 fetch join으로 N+1 방지 */
+        /* 데이터 후처리(작성자 확인)가 필요해서 DTO 프로젝션이 아닌 fetch join으로 N+1 방지 */
         return commentRepository.findAllByScheduleIdWithMember(scheduleId).stream()
                 .map((comment)->
-                        CommentResponse.of(comment, comment.getMember().getId().equals(sessionMemberId))).toList();
+                        CommentResponse.of(comment, comment.isWrittenBy(sessionMemberId))).toList();
     }
 
     @Transactional
     public CommentResponse updateContent(Long sessionMemberId, Long commentId, CommentRequest request) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CustomException(COMMENT_NOT_FOUND));
-        if (!comment.getMember().getId().equals(sessionMemberId)) {
+        if (!comment.isWrittenBy(sessionMemberId)) {
             throw new CustomException(COMMENT_WRITER_FORBIDDEN);
         }
         comment.updateContent(request.content());
