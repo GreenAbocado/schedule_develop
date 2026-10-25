@@ -1,5 +1,6 @@
 package com.greenabocado.scheduledevelop.dto.schedule;
 
+import com.greenabocado.scheduledevelop.dto.common.Writer;
 import com.greenabocado.scheduledevelop.entity.Schedule;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -17,10 +18,6 @@ public class ScheduleDetailResponse{
     private final Writer writer;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
-
-    private record Writer(
-            Long id, String name
-    ) {}
 
     public static ScheduleDetailResponse of(Schedule schedule, boolean editable) {
         return new ScheduleDetailResponse(

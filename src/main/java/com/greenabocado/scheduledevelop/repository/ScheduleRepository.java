@@ -20,5 +20,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
     @Modifying /* 사용 시점에 1차캐시에 아무 엔티티도 없으므로 따로 clearAutomatically 적용 X */
     @Query("DELETE FROM Schedule s WHERE s.member.id = :memberId")
-    void deleteAllByMemberIdInBulk(@Param("memberId") Long memberId);
+    long deleteAllByMemberIdInBulk(@Param("memberId") Long memberId);
 }

@@ -23,11 +23,15 @@ public enum ErrorCode {
     USER_PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "U004", "비밀번호를 잘못 입력하였습니다."),
 
     /* 관리자 */
-    ADMIN_FORBIDDEN(HttpStatus.FORBIDDEN, "A001", "관리자 인가에 실패하였습니다"),
+    ADMIN_FORBIDDEN(HttpStatus.FORBIDDEN, "A001", "관리자 인가에 실패하였습니다."),
 
     /* 일정 */
-    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "해당 일정이 존재하지 않습니다"),
-    SCHEDULE_WRITER_FORBIDDEN(HttpStatus.FORBIDDEN, "S002", "편집 권한이 없습니다");
+    SCHEDULE_NOT_FOUND(HttpStatus.NOT_FOUND, "S001", "해당 일정이 존재하지 않습니다."),
+    SCHEDULE_WRITER_FORBIDDEN(HttpStatus.FORBIDDEN, "S002", "일정 편집 권한이 없습니다."),
+
+    /* 댓글 */
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "C001", "해당 댓글이 존재하지 않습니다."),
+    COMMENT_WRITER_FORBIDDEN(HttpStatus.FORBIDDEN, "C002", "댓글 편집 권한이 없습니다.");
 
     private final HttpStatus status;
     private final String code;

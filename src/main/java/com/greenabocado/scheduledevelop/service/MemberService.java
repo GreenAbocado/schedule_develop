@@ -4,6 +4,7 @@ import com.greenabocado.scheduledevelop.common.exception.CustomException;
 import com.greenabocado.scheduledevelop.config.PasswordEncoder;
 import com.greenabocado.scheduledevelop.dto.member.*;
 import com.greenabocado.scheduledevelop.entity.member.Member;
+import com.greenabocado.scheduledevelop.repository.CommentRepository;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import static com.greenabocado.scheduledevelop.common.exception.ErrorCode.*;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final ScheduleRepository scheduleRepository;
+    private final CommentRepository commentRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -85,11 +87,15 @@ public class MemberService {
     }
 
     /* 삭제 파생메서드일 경우, 조회 후 삭제 상태로 변경하여 N건의 쿼리
-     *  벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄 삭제 */
+     * 벌크 쿼리를 통해 1번의 쿼리로 관련 스케줄이나 댓글 삭제
+     * 벌크 쿼리 실행 시점에 1차 캐시가 비워져 있으므로 사실상 flush, clear 불필요 */
     @Transactional
     public void deleteMyAccount(Long id) {
-        scheduleRepository.deleteAllByMemberIdInBulk(id);
-        log.info("특정 회원 일정 삭제 memberId={}", id);
+        long commentDeletedCount = commentRepository.deleteAllByMemberIdInBulk(id);
+        log.info("회원 댓글 전체 {}건 삭제 memberId={}", commentDeletedCount, id);
+
+        long scheduleDeletedCount = scheduleRepository.deleteAllByMemberIdInBulk(id);
+        log.info("회원 일정 전체 {}건 삭제 memberId={}", scheduleDeletedCount, id);
 
         memberRepository.deleteById(id);
         log.info("회원 탈퇴 memberId={}", id);

@@ -7,6 +7,7 @@ import com.greenabocado.scheduledevelop.dto.schedule.ScheduleDetailResponse;
 import com.greenabocado.scheduledevelop.dto.schedule.ScheduleSummaryResponse;
 import com.greenabocado.scheduledevelop.entity.Schedule;
 import com.greenabocado.scheduledevelop.entity.member.Member;
+import com.greenabocado.scheduledevelop.repository.CommentRepository;
 import com.greenabocado.scheduledevelop.repository.MemberRepository;
 import com.greenabocado.scheduledevelop.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public ScheduleDetailResponse createSchedule(Long memberId, ScheduleRequest request) {
@@ -43,9 +45,8 @@ public class ScheduleService {
     public ScheduleDetailResponse getSchedule(Long memberId, Long scheduleId) {
         Schedule schedule = findScheduleById(scheduleId);
 
-        // 단순 수정/삭제 버튼 화면 표시 여부 결정, memberId 널 가능(비로그인 사용자)
-        boolean editable = schedule.getMember().getId().equals(memberId);
-        return ScheduleDetailResponse.of(schedule, editable);
+        // 2번째 파라미터: 작성자 여부(수정/삭제 버튼 표시 결정), memberId 널 가능(비로그인 사용자)
+        return ScheduleDetailResponse.of(schedule, schedule.isWrittenBy(memberId));
     }
 
     @Transactional(readOnly=true)
@@ -62,9 +63,15 @@ public class ScheduleService {
         return ScheduleDetailResponse.of(schedule, true);
     }
 
+    /* 파생 메서드로 댓글 목록 삭제 시 엔티티 상태 삭제로 변경 후 N번의 쿼리 추가 발생
+     *  벌크 쿼리 1번으로 해결*/
     @Transactional
     public void deleteMySchedule(Long memberId, Long scheduleId) {
         Schedule schedule = getMyScheduleOrThrow(memberId, scheduleId);
+
+        long commentDeletedCount = commentRepository.deleteAllByScheduleIdInBulk(scheduleId);
+        log.info("일정 댓글 전체 {}건 삭제 scheduleId={}", commentDeletedCount, schedule.getId());
+
         scheduleRepository.delete(schedule);
         log.info("일정 삭제 scheduleId={}", schedule.getId());
     }
@@ -73,7 +80,7 @@ public class ScheduleService {
     private Schedule getMyScheduleOrThrow(Long memberId, Long scheduleId) {
         Schedule schedule = findScheduleById(scheduleId);
 
-        if (!schedule.getMember().getId().equals(memberId)) {
+        if (!schedule.isWrittenBy(memberId)) {
             throw new CustomException(ErrorCode.SCHEDULE_WRITER_FORBIDDEN);
         }
         return schedule;
