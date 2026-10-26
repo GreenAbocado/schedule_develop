@@ -44,7 +44,7 @@ public class ScheduleService {
     @Transactional(readOnly=true)
     public PageResponse<ScheduleSummaryResponse> getAllSchedules(int page, int size) {
         Pageable pageable = getPageable(page, size);
-        return PageResponse.from(scheduleRepository.findAllWithMemberName(pageable));
+        return PageResponse.from(scheduleRepository.findAllSummaries(pageable));
     }
 
     @Transactional(readOnly=true)
@@ -55,14 +55,13 @@ public class ScheduleService {
         return ScheduleDetailResponse.of(schedule, schedule.isWrittenBy(memberId));
     }
 
-    /* 일정이 모두 같은 회원 프록시 객체를 참조하고 있으므로
-       이후 DTO 변환에서 회원에 접근할 경우 1번의 쿼리로 회원을 조회하고 그 이후는 날라가지 않음 -> 간단하게 파생 메서드 사용 */
+    /* 댓글 개수 조회로 인해 JPQL 사용 (단순 조회 그대로 반환이므로 DTO 프로젝션) */
+    /* commentRepository에서 count는 N(일정)개의 쿼리로 인한 낭비 */
     @Transactional(readOnly=true)
     public PageResponse<ScheduleSummaryResponse> getMyAllSchedules(Long memberId, int page, int size) {
         Pageable pageable = getPageable(page, size);
 
-        return PageResponse.from(scheduleRepository.findAllByMemberId(pageable, memberId)   // Page<Schedule>
-                .map(ScheduleSummaryResponse::from));
+        return PageResponse.from(scheduleRepository.findSummariesByMemberId(pageable, memberId));
     }
 
     @Transactional
