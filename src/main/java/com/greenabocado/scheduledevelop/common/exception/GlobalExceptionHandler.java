@@ -1,5 +1,6 @@
 package com.greenabocado.scheduledevelop.common.exception;
 
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -29,13 +30,18 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
         List<FieldErrorResponse> fieldErrors = e.getBindingResult().getFieldErrors().stream()
-                .map(FieldErrorResponse::from)
-                .toList();
+                .map(FieldErrorResponse::from).toList();
 
-        ErrorCode code = REQUEST_VALIDATION_FAILED;
-        log.warn("[{}] {}건의 검증 실패", code.getCode(), fieldErrors.size());
-        return ResponseEntity.status(code.getStatus())
-                .body(ErrorResponse.of(code, fieldErrors));
+        return buildValidationFailResponseEntity(fieldErrors);
+    }
+
+    /* 쿼리 or 경로변수 검증 실패 (현재는 페이징 단위 검증에 적용) */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleQueryValidationException(ConstraintViolationException e) {
+        List<FieldErrorResponse> fieldErrors = e.getConstraintViolations().stream()
+                .map(FieldErrorResponse::from).toList();
+
+        return buildValidationFailResponseEntity(fieldErrors);
     }
 
     /* 비즈니스 예외 */
@@ -72,5 +78,12 @@ public class GlobalExceptionHandler {
     private ResponseEntity<ErrorResponse> buildResponseEntity(ErrorCode code) {
         return ResponseEntity.status(code.getStatus())
                 .body(ErrorResponse.from(code));
+    }
+
+    private ResponseEntity<ErrorResponse> buildValidationFailResponseEntity(List<FieldErrorResponse> fieldErrors) {
+        ErrorCode code = REQUEST_VALIDATION_FAILED;
+        log.warn("[{}] {}건의 검증 실패", code.getCode(), fieldErrors.size());
+        return ResponseEntity.status(code.getStatus())
+                .body(ErrorResponse.of(code, fieldErrors));
     }
 }

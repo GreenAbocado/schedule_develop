@@ -11,7 +11,7 @@ public class ErrorResponse {
     private final String message;
     private final LocalDateTime timestamp;
 
-    /* DTO 검증 실패에만 에러 필드 목록 추가 */
+    /* DTO, 쿼리 검증 실패에만 에러 필드 목록 추가 */
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final List<FieldErrorResponse> fieldErrors;
 
