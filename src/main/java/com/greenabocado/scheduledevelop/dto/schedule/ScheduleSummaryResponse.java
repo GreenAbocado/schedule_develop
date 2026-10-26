@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public record ScheduleSummaryResponse(Long id,
                                       String title,
                                       String summaryContent,
+                                      long commentCount,
                                       LocalDateTime updatedAt,
                                       String writerName) {
 
@@ -15,14 +16,5 @@ public record ScheduleSummaryResponse(Long id,
     public ScheduleSummaryResponse {
         summaryContent = (summaryContent == null) ? null :
                 (summaryContent.length() < 30) ? summaryContent : summaryContent.substring(0, 30);
-    }
-
-    /* 서비스에서 변환 시 정적 팩토리 사용 (본인 일정 조회) */
-    public static ScheduleSummaryResponse from(Schedule schedule) {
-        return new ScheduleSummaryResponse(schedule.getId(),
-                schedule.getTitle(),
-                schedule.getContent(),
-                schedule.getUpdatedAt(),
-                schedule.getMember().getName());
     }
 }
